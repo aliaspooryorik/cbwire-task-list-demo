@@ -1,7 +1,7 @@
 <cfoutput>
 <div class="h-100 w-full flex items-center justify-center bg-teal-lightest font-sans">
-	<div
-        x-data="{ showTasks: true, task: #entangle( 'task' )# }"
+    <div
+        x-data="{ showTasks: true }"
         class="bg-white rounded shadow p-6 m-4 w-full lg:max-w-3xl">
         <div class="mb-4">
             <div class="flex justify-between">
@@ -11,37 +11,39 @@
                 </div>
                 <!--- COMPUTED PROPERTIES --->
                 <div>
-                    <div>#args.computed.taskCounter()# tasks</div>
-                    <div>#args.computed.completeCounter()# complete</div>   
+                    <div>#taskCounter()# tasks</div>
+                    <div>#completeCounter()# complete</div>   
                 </div>
             </div>
-            <div class="flex mt-4">
-                <!--- MODEL DATA BINDING --->
+            
+            <!--- MODEL DATA BINDING --->
+            <form wire:submit="addTask" class="flex mt-4">
                 <input
-                    x-model.debounce.300ms="task"
+                    wire:model.live="task"
                     class="shadow appearance-none border rounded w-full py-2 px-3 mr-4 text-grey-darker" placeholder="Add Task">
                 <!--- ADDTASK ACTION --->
                 <button
-                    :disabled="!task"
-                    wire:click="addTask"
-                    class="<cfif args.computed.preventAdd()>bg-gray-500<cfelse>bg-cyan-500 hover:bg-cyan-600</cfif> px-2.5 py-1.5 border border-transparent font-medium text-cs shadow-sm rounded text-white hover:text-white">Add</button>
-            </div>
+                    :disabled="$wire.task.length === 0"
+                    :class="$wire.task.length === 0 ? 'bg-gray-500' : 'bg-cyan-500 hover:bg-cyan-600'"
+                    class="px-2.5 py-1.5 border border-transparent font-medium text-cs shadow-sm rounded text-white hover:text-white">Add</button>
+            </form>
+            
             <div class="text-sm italic text-rose-600">
-                <cfif len( args.computed.error() )>
-                    #args.computed.error()#
+                <cfif len( errors() )>
+                    #errors()#
                 </cfif>
             </div>
         </div>
         <div>
-            <!--- #serializeJson( args.tasks )# --->
-            <cfif arrayLen( args.tasks )>
+            <!--- #serializeJson( tasks )# --->
+            <cfif arrayLen( tasks )>
                 <div>
                     <a class="text-sm italic text-cyan-500" href="" wire:click.prevent="removeAll">Remove All</a>
-                    | <a class="text-sm italic text-cyan-500" href="" x-on:click.prevent="showTasks = !showTasks">Toggle Tasks</a>
+                    | <a class="text-sm italic text-cyan-500" href="" @click.prevent="showTasks = !showTasks">Toggle Tasks</a>
                 </div>
                 <div x-show="showTasks">
-                    <cfloop array="#args.tasks#" index="task">
-                        #wire( "Task", { "task": task } )#
+                    <cfloop array="#tasks#" item="taskObj">
+                        #wire( name="Task", params=taskObj, key="task-#taskObj.id#" )#
                     </cfloop>
                 </div>
             </cfif>

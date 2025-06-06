@@ -15,23 +15,26 @@ component extends="cbwire.models.Component" {
     };
 
     // Computed Properties
-    computed = {
-        "error": function() {
-            return data.task.len() ? "" : "Please enter a task.";
-        },
-        "taskCounter": function() {
-            return arrayLen( data.tasks );
-        },
-        "completeCounter": function() {
-            var completedTasks = data.tasks.filter( function( task ){
-                return task.complete == true;
-            } );
-            return arrayLen( completedTasks );
-        },
-        "preventAdd": function(){
-            return len( data.error ) || !len( data.task );
-        }
+    
+    function errors() computed {
+        return data.task.len() ? "" : "Please enter a task.";
     }
+
+    function taskCounter() computed {
+        return arrayLen( data.tasks );
+    }
+
+    function completeCounter() computed {
+        var completedTasks = data.tasks.filter( function( task ){
+            return task.complete == true;
+        } );
+        return arrayLen( completedTasks );
+    }
+
+    function preventAdd() computed {
+        return len( data.error ) || !len( data.task );
+    }
+
 
     // Validations for our TaskList
     function validate(){
@@ -51,7 +54,6 @@ component extends="cbwire.models.Component" {
     // Add a task
     function addTask() {
         validate();
-
 
         data.tasks.append( {
             "id": createUUID(),
